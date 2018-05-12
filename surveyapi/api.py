@@ -1,9 +1,15 @@
 from flask import Blueprint
 from flask_restful import Resource,Api,reqparse
 from surveyapi.resources import create_user, get_all_items, authenticate_user, add_items, get_item
+from flask_cors import CORS
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
+
+#CORS configuration
+CORS(api_bp, origins="*", allow_headers=[
+    "Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+    supports_credentials=True, intercept_exceptions=False)
 
 parse = reqparse.RequestParser()
 parse.add_argument('email',type=str,help='Email to create user')
@@ -29,9 +35,9 @@ class createUser(Resource):
 class authenticateUser(Resource):
     def post(self):
         try:
-
+            
             args = parse.parse_args()
-            return authenticate_user(args['username'],args['password'])
+            return authenticate_user(args['email'],args['password'])
             
         except Exception as e:
             return {'error': str(e)}

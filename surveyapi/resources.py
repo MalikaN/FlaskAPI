@@ -71,13 +71,12 @@ def add_items(iName, iPrice, iQty):
 def authenticate_user(username,password):
     conn = mysql.connect()
     cursor = conn.cursor()
-
     cursor.callproc('spAuthenticateUser',(username,))
     data = cursor.fetchall()
 
     if (len(data)>0):
         if(str(data[0][2]) == password):
-            return {'status':200,'UserId':'Login Success'}
+            return {'UserId':'Login Success'}
         else:
             return {'status':100,'message':'Authentication failure'}
 
