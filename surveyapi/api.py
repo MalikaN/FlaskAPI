@@ -1,7 +1,9 @@
 from flask import Blueprint
 from flask_restful import Resource,Api,reqparse
-from surveyapi.resources import create_user, get_all_items, authenticate_user, add_items, get_item
+from surveyapi.resources import create_user, authenticate_user, get_all_items, add_items, get_item, secret_item, token_refresh
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required, jwt_refresh_token_required
+import werkzeug
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
@@ -12,22 +14,20 @@ CORS(api_bp, origins="*", allow_headers=[
     supports_credentials=True, intercept_exceptions=False)
 
 parse = reqparse.RequestParser()
+parse.add_argument('firstname',type=str,help='User First Name')
+parse.add_argument('lastname',type=str,help='User Last Name')
 parse.add_argument('email',type=str,help='Email to create user')
 parse.add_argument('password',type=str,help='Password to create user')
-parse.add_argument('itemname',type=str,help='Item Name')
-parse.add_argument('itemprice',type=float,help='Item price')
-parse.add_argument('itemqty',type=int,help='Item Qty')
-
-class root(Resource):
-    def get(self):
-        return 'hello world'
+parse.add_argument('userid',type=int,help='User Id created post')
+parse.add_argument('postTitle',type=str,help='Post Title')
+parse.add_argument('post',type=str,help='Post Description')
+parse.add_argument('file',type=werkzeug.datastructures.FileStorage, location='files')
 
 class createUser(Resource):
     def post(self):
-        try:
-
+        try:           
             args = parse.parse_args()
-            return create_user(args['email'],args['password'])
+            return create_user(args['firstname'],args['lastname'],args['email'],args['password'])
            
         except Exception as e :
             return {'error':str(e)}
@@ -37,8 +37,9 @@ class authenticateUser(Resource):
         try:
             
             args = parse.parse_args()
-            return authenticate_user(args['email'],args['password'])
-            
+            password = args['password']
+            return authenticate_user(args['email'],password)
+
         except Exception as e:
             return {'error': str(e)}
 
@@ -60,19 +61,31 @@ class getItem(Resource):
         except Exception as e :
             return {'error': str(e)}
 
-class addItems(Resource):
+class addpost(Resource):
     def post(self):
         try:
-
             args = parse.parse_args()
-            return add_items(args['itemname'],args['itemprice'],args['itemqty'])
+            return{'file':args['file']}
+            # return add_items(args['userid'],args['postTitle'],args['post'],args['file'])
         
         except Exception as e:
             return {'error': str(e)}
 
-api.add_resource(root,'/')
+class secretResource(Resource): 
+    @jwt_required
+    def get(self):
+        return secret_item()
+
+class TokenRefresh(Resource):
+    @jwt_refresh_token_required
+    def get(self):
+        return token_refresh()
+              
+
+# api.add_resource(root,'/')
 api.add_resource(authenticateUser,'/login')
-api.add_resource(createUser,'/createuser')
-api.add_resource(addItems,'/additems')
-api.add_resource(getAllItems,'/getallitems')
+api.add_resource(createUser,'/signup')
+api.add_resource(addpost,'/add-post')
+api.add_resource(getAllItems,'/')
 api.add_resource(getItem,'/getitem/<int:id>')
+api.add_resource(TokenRefresh, '/secret')
