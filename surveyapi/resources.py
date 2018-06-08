@@ -75,67 +75,64 @@ def authenticate_user(email,password):
         else:
             return {'status':100,'message':'Authentication failure'}
 
-def get_all_items():
+def get_all_posts():
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spGetItems')
+    cursor.callproc('spGetPosts')
     data = cursor.fetchall()
 
-    item_List = []
+    post_List = []
 
-    for item in data:
+    for post in data:
         i = {
-            'ItemName' : item[0],
-            'itemPrice' : item[1],
-            'Itemqty' : item[2]
+            'postId' : str(post[0]),
+            'postTitle' : str(post[1]),
+            'PostDesc' : str(post[2]),
+            'PostSrc' : str(post[4])
             }
-        item_List.append(i)
+        post_List.append(i)
 
-    return {'StatusCode':'200','Items':item_List}
+    return {'StatusCode':'200','Items':post_List}
 
-def get_item(id):
+def get_post(id):
 
     __id = id
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spGetItem',(__id,))
+    cursor.callproc('spGetSinglePost',(__id,))
     data = cursor.fetchall()
 
-    items = []
+    singlePost = []
 
-    for item in data:
+    for post in data:
         i = {
-            'ItemName' : item[0],
-            'itemPrice' : item[1],
-            'Itemqty' : item[2]
+            'postId' : post[0],
+            'postTitle' : post[1],
+            'PostDesc' : post[2],
+            'PostSrc' : post[4]
             }
-        items.append(i)
+        singlePost.append(i)
 
-    return {'StatusCode':'200','Items':item}
+    return {'StatusCode':'200','Items':singlePost}
 
 
-def add_items(uId, pTitle, postDesc, selectFile):
+def add_posts(uId, pTitle, postDesc,selectedFile):
 
-    fileName = os.path.join(upload_url,selectFile)
-    return {'result':selectFile}
-    cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
+    # fileName = os.path.join(upload_url,selectFile)
+    # return {'result':selectFile}
+    # cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
     
-#     conn = mysql.connect()
-#     cursor = conn.cursor()
+    conn = mysql.connect()
+    cursor = conn.cursor()
 
-#     cursor.callproc('spAddPost',(uId, pTitle, postDesc, selectFile))
-#     data = cursor.fetchall()
-#     if len(data) is 0:
-#         conn.commit()
-#         return {'StatusCode':'201','Message': 'Post created Successfully'}
-#     else:
-#         return {'StatusCode':'100','Message': 'Error Occured'}
-
-def secret_item():
-    return {
-            'answer': 42
-        }
+    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile))
+    data = cursor.fetchall()
+    if len(data) is 0:
+        conn.commit()
+        return {'StatusCode':'201','Message': 'Post created Successfully'}
+    else:
+        return {'StatusCode':'100','Message': 'Error Occured'}
 
 def token_refresh():
     current_user = get_jwt_identity()
