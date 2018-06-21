@@ -1,6 +1,7 @@
 from flask import Blueprint,Flask,request
 from flask_restful import Resource,Api,reqparse
-from surveyapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, token_refresh
+from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, 
+token_refresh, get_all_posts_user_id, edit_post
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, jwt_refresh_token_required
 from werkzeug.datastructures import FileStorage 
@@ -20,13 +21,15 @@ parse.add_argument('email',type=str,help='Email to create user')
 parse.add_argument('password',type=str,help='Password to create user')
 parse.add_argument('userid',type=int,help='User Id created post')
 parse.add_argument('postTitle',type=str,help='Post Title')
-parse.add_argument('post',type=str,help='Post Description')
 parse.add_argument('fileUrl', type=str, help='upload images')
+parse.add_argument('postId', type=int, help='Post ID')
+parse.add_argument('post', help='Post Description')
+
 
 class createUser(Resource):
     def post(self):
         try:           
-            args = parse.parse_args()
+            args = parse.parse_args();
             return create_user(args['firstname'],args['lastname'],args['email'],args['password'])
            
         except Exception as e :
@@ -64,9 +67,26 @@ class getPost(Resource):
 class addpost(Resource):
     def post(self):
         try:
-            args = parse.parse_args()
+            args = parse.parse_args();
             return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'])
         
+        except Exception as e:
+            return {'error': str(e)}
+
+class getAllPostsFromUserID(Resource):
+    def post(self):
+        try:
+            args = parse.parse_args();
+            userId = args['userid']
+            return get_all_posts_user_id(userId)
+        except Exception as e:
+            return {'error': str(e)}
+
+class editpost(Resource):
+    def post(self):
+        try:
+            args= parse.parse_args();
+            return edit_post(args['postId'],args['postTitle'],args['post'],args['fileUrl'])
         except Exception as e:
             return {'error': str(e)}
 
@@ -75,10 +95,10 @@ class TokenRefresh(Resource):
     def get(self):
         return token_refresh()
               
-
-# api.add_resource(root,'/')
 api.add_resource(authenticateUser,'/login')
 api.add_resource(createUser,'/signup')
 api.add_resource(addpost,'/add-post')
+api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPosts,'/')
 api.add_resource(getPost,'/post/<int:id>')
+api.add_resource(getAllPostsFromUserID,'/my-post')

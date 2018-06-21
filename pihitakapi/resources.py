@@ -2,12 +2,12 @@ from flask import jsonify
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
-from surveyapi.config import BaseConfig
+from pihitakapi.config import BaseConfig
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_raw_jwt,decode_token)
-import cloudinary
+# import cloudinary
 import os
-from cloudinary.uploader import upload
-from cloudinary.utils import cloudinary_url
+# from cloudinary.uploader import upload
+# from cloudinary.utils import cloudinary_url
 
 mysql = MySQL()
 upload_url = 'https://api.cloudinary.com/v1_1/myprojectx/image/upload/'
@@ -27,23 +27,23 @@ def create_user(firstname,lastname,email,password):
     __lastName = lastname
     __userEmail = email
     __password = generate_password_hash(password,method='sha256')
+    cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password,))
+    data = cursor.fetchone()
 
-    cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password))
-    data = cursor.fetchall()
-    
-    if len(data) is 0:
+    if (data[0]!=[]):
         conn.commit()
         # JWT access
         access_token = create_access_token(identity = email)
         refresh_token = create_refresh_token(identity = email)
+        tokenValue = dict()
+        tokenValue['message'] = ('logged in as '+email)
+        tokenValue['access_token'] = access_token
+        tokenValue['refresh_token'] = refresh_token
+        tokenValue['userId'] = format(data[0])
+        tokenValue['username'] = (firstname+' '+lastname)
+        tokenValue['status'] = 422
 
-        return {
-                'message': 'User {} was created'.format(email),
-                'access_token': access_token,
-                'refresh_token': refresh_token,
-                'status':201
-                }
-
+        return tokenValue
     else:
         return {'status':'100','Message': str(data[0])}
 
@@ -81,15 +81,14 @@ def get_all_posts():
     cursor = conn.cursor()
     cursor.callproc('spGetPosts')
     data = cursor.fetchall()
-
     post_List = []
 
     for post in data:
         i = {
-            'postId' : str(post[0]),
-            'postTitle' : str(post[1]),
-            'PostDesc' : str(post[2]),
-            'PostSrc' : str(post[4])
+            'postId' : post[0],
+            'postTitle' : post[1],
+            'PostDesc' : post[2],
+            'PostSrc' : post[4]
             }
         post_List.append(i)
 
@@ -120,12 +119,11 @@ def get_post(id):
 def add_posts(uId, pTitle, postDesc,selectedFile):
 
     # fileName = os.path.join(upload_url,selectFile)
-    # return {'result':selectFile}
+    # return {'result':'selectFile'}
     # cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
     
     conn = mysql.connect()
     cursor = conn.cursor()
-
     cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile))
     data = cursor.fetchall()
     if len(data) is 0:
@@ -133,6 +131,42 @@ def add_posts(uId, pTitle, postDesc,selectedFile):
         return {'StatusCode':'201','Message': 'Post created Successfully'}
     else:
         return {'StatusCode':'100','Message': 'Error Occured'}
+
+def get_all_posts_user_id(userid):
+
+    conn =mysql.connect()
+    cursor = conn.cursor()
+    __userID = userid
+    cursor.callproc('spGetAllPostFromLoginUser',(__userID,))
+    data = cursor.fetchall()
+
+    allPosts = []
+
+    for post in data:
+        i={
+            'postId' : post[0],
+            'postTitle' : post[1],
+            'PostDesc' : post[2],
+            'PostSrc' : post[3]
+        }
+
+        allPosts.append(i)
+    
+    return{'StatusCode':'200','Items':allPosts}
+
+def edit_post(postid, title, post, file):
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('spEditPost',(postid, title, post, file))
+    data = cursor.fetchall()
+
+    if len(data) is 0:
+        conn.commit()
+        return {'StatusCode':'201','Message': 'Post created Successfully'}
+    else:
+        return {'StatusCode':'100','Message': 'Error Occured'}
+
 
 def token_refresh():
     current_user = get_jwt_identity()
