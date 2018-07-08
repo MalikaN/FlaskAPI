@@ -1,7 +1,6 @@
 from flask import Blueprint,Flask,request
 from flask_restful import Resource,Api,reqparse
-from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, 
-token_refresh, get_all_posts_user_id, edit_post
+from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, token_refresh, get_all_posts_user_id, edit_post
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, jwt_refresh_token_required
 from werkzeug.datastructures import FileStorage 

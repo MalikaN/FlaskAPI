@@ -82,13 +82,14 @@ def get_all_posts():
     cursor.callproc('spGetPosts')
     data = cursor.fetchall()
     post_List = []
-
+    
     for post in data:
         i = {
             'postId' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
-            'PostSrc' : post[4]
+            'PostSrc' : post[4],
+            'CatId': post[5]
             }
         post_List.append(i)
 
