@@ -95,6 +95,9 @@ def get_all_posts():
 
     return {'StatusCode':'200','Items':post_List}
 
+def get_test():
+    return {'Post':'Hello'}
+
 def get_post(id):
 
     __id = id

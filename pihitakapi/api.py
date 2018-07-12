@@ -1,6 +1,6 @@
 from flask import Blueprint,Flask,request
 from flask_restful import Resource,Api,reqparse
-from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, token_refresh, get_all_posts_user_id, edit_post
+from pihitakapi.resources import create_user, authenticate_user, get_all_posts, get_test, add_posts, get_post, token_refresh, get_all_posts_user_id, edit_post
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, jwt_refresh_token_required
 from werkzeug.datastructures import FileStorage 
@@ -14,10 +14,10 @@ CORS(api_bp, origins="*", allow_headers=[
     supports_credentials=True, intercept_exceptions=False)
 
 parse = reqparse.RequestParser()
-parse.add_argument('firstname',type=str,help='User First Name')
-parse.add_argument('lastname',type=str,help='User Last Name')
-parse.add_argument('email',type=str,help='Email to create user')
-parse.add_argument('password',type=str,help='Password to create user')
+parse.add_argument('firstname',type=str, help='User First Name')
+parse.add_argument('lastname',type=str, help='User Last Name')
+parse.add_argument('email',type=str, help='Email to create user')
+parse.add_argument('password',type=str, help='Password to create user')
 parse.add_argument('userid',type=int,help='User Id created post')
 parse.add_argument('postTitle',type=str,help='Post Title')
 parse.add_argument('fileUrl', type=str, help='upload images')
@@ -89,6 +89,10 @@ class editpost(Resource):
         except Exception as e:
             return {'error': str(e)}
 
+class test(Resource):
+    def get(self):
+            return get_test();
+
 class TokenRefresh(Resource):
     @jwt_refresh_token_required
     def get(self):
@@ -101,3 +105,4 @@ api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPosts,'/')
 api.add_resource(getPost,'/post/<int:id>')
 api.add_resource(getAllPostsFromUserID,'/my-post')
+api.add_resource(test,'/test')
