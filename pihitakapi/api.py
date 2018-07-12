@@ -91,7 +91,10 @@ class editpost(Resource):
 
 class test(Resource):
     def get(self):
+        try:
             return get_test();
+        except Exception as e :
+            return {'error': str(e)}
 
 class TokenRefresh(Resource):
     @jwt_refresh_token_required
