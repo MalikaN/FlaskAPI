@@ -7,6 +7,8 @@ class BaseConfig(object):
     # MYSQL_DATABASE_HOST = "localhost"
     # # used for encryption and session management
     # JWT_SECRET_KEY = 'mysecretkey'
+
+
     
     #FOR EC2
     MYSQL_DATABASE_USER = "admin"
