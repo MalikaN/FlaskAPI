@@ -1,6 +1,6 @@
 from flask import Blueprint,Flask,request
 from flask_restful import Resource,Api,reqparse
-from pihitakapi.resources import create_user, authenticate_user, get_all_posts, get_test, add_posts, get_post, token_refresh, get_all_posts_user_id, edit_post
+from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, token_refresh, get_all_posts_user_id, edit_post, get_category
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, jwt_refresh_token_required
 from werkzeug.datastructures import FileStorage 
@@ -22,7 +22,8 @@ parse.add_argument('userid',type=int,help='User Id created post')
 parse.add_argument('postTitle',type=str,help='Post Title')
 parse.add_argument('fileUrl', type=str, help='upload images')
 parse.add_argument('postId', type=int, help='Post ID')
-parse.add_argument('post', help='Post Description')
+parse.add_argument('post', help='Post Category')
+parse.add_argument('catId',type=int,help='')
 
 
 class createUser(Resource):
@@ -67,7 +68,7 @@ class addpost(Resource):
     def post(self):
         try:
             args = parse.parse_args();
-            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'])
+            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'])
         
         except Exception as e:
             return {'error': str(e)}
@@ -89,10 +90,10 @@ class editpost(Resource):
         except Exception as e:
             return {'error': str(e)}
 
-class test(Resource):
+class getPostCategory(Resource):
     def get(self):
         try:
-            return get_test();
+            return get_category();
         except Exception as e :
             return {'error': str(e)}
 
@@ -108,4 +109,4 @@ api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPosts,'/')
 api.add_resource(getPost,'/post/<int:id>')
 api.add_resource(getAllPostsFromUserID,'/my-post')
-api.add_resource(test,'/test')
+api.add_resource(getPostCategory,'/get-post-category')

@@ -95,8 +95,21 @@ def get_all_posts():
 
     return {'StatusCode':'200','Items':post_List}
 
-def get_test():
-    return {'Post':'Hello'}
+def get_category():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('spGetPostCategory')
+    data = cursor.fetchall()
+    category_List = []
+
+    for cat in data:
+        i = {
+            'catId' : cat[0],
+            'Category' : cat[1]
+        }
+        category_List.append(i)
+
+    return {'StatusCode':'200','category':category_List}
 
 def get_post(id):
 
@@ -120,7 +133,7 @@ def get_post(id):
     return {'StatusCode':'200','Items':singlePost}
 
 
-def add_posts(uId, pTitle, postDesc,selectedFile):
+def add_posts(uId, pTitle, postDesc,selectedFile,catId):
 
     # fileName = os.path.join(upload_url,selectFile)
     # return {'result':'selectFile'}
@@ -128,7 +141,7 @@ def add_posts(uId, pTitle, postDesc,selectedFile):
     
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile))
+    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId))
     data = cursor.fetchall()
     if len(data) is 0:
         conn.commit()
