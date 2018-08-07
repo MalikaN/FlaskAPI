@@ -89,7 +89,8 @@ def get_all_posts():
             'postTitle' : post[1],
             'PostDesc' : post[2],
             'PostSrc' : post[4],
-            'CatId': post[5]
+            'CatId': post[5],
+            'Slug': post[6]
             }
         post_List.append(i)
 
