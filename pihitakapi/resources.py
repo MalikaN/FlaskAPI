@@ -85,7 +85,7 @@ def get_all_posts():
     
     for post in data:
         i = {
-            'postId' : post[0],
+            'id' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
             'PostSrc' : post[4],
