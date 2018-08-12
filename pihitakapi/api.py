@@ -58,10 +58,11 @@ class getAllPosts(Resource):
             return {'error': str(e)}
 
 class getPost(Resource):
-    def get(self,code):
+    def get(self):
         try:
-
-            return get_post(code)
+            args = parse.parse_args();
+            customId = args['customId']
+            return get_post(customId)
         
         except Exception as e :
             return {'error': str(e)}
@@ -109,6 +110,6 @@ api.add_resource(createUser,'/signup')
 api.add_resource(addpost,'/add-post')
 api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPosts,'/')
-api.add_resource(getPost,'/<string:slug>/<string:code>')
+api.add_resource(getPost,'/post')
 api.add_resource(getAllPostsFromUserID,'/my-post')
 api.add_resource(getPostCategory,'/get-post-category')
