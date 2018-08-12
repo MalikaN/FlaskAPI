@@ -129,7 +129,6 @@ def get_post(CustomCode):
             'PostSrc' : post[4]
             }
         singlePost.append(i)
-        
     return {'StatusCode':'200','Items':singlePost}
 
 
