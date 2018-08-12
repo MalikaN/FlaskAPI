@@ -121,16 +121,15 @@ def get_post(CustomCode):
     cursor.callproc('spGetSinglePost',(__cCode,))
     data = cursor.fetchall()
     singlePost = []
-
     for post in data:
         i = {
             'postId' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
-            'PostSrc' : post[3]
+            'PostSrc' : post[4]
             }
         singlePost.append(i)
-
+        
     return {'StatusCode':'200','Items':singlePost}
 
 
