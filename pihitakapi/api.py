@@ -58,10 +58,10 @@ class getAllPosts(Resource):
             return {'error': str(e)}
 
 class getPost(Resource):
-    def get(self,id):
+    def get(self,code):
         try:
 
-            return get_post(id)
+            return get_post(code)
         
         except Exception as e :
             return {'error': str(e)}

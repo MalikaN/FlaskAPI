@@ -113,12 +113,12 @@ def get_category():
 
     return {'StatusCode':'200','category':category_List}
 
-def get_post(id):
+def get_post(CustomCode):
 
-    __id = id
+    __cCode = CustomCode
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spGetSinglePost',(__id,))
+    cursor.callproc('spGetSinglePost',(__cCode,))
     data = cursor.fetchall()
 
     singlePost = []
