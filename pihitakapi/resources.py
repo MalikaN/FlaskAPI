@@ -120,7 +120,6 @@ def get_post(CustomCode):
     cursor = conn.cursor()
     cursor.callproc('spGetSinglePost',(__cCode,))
     data = cursor.fetchall()
-   
     singlePost = []
 
     for post in data:
