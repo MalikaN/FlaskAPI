@@ -134,15 +134,14 @@ def get_post(id):
     return {'StatusCode':'200','Items':singlePost}
 
 
-def add_posts(uId, pTitle, postDesc,selectedFile,catId):
+def add_posts(uId, pTitle, postDesc,selectedFile,catId,slug,cid):
 
     # fileName = os.path.join(upload_url,selectFile)
     # return {'result':'selectFile'}
     # cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
-    
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId))
+    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId,slug,cid))
     data = cursor.fetchall()
     if len(data) is 0:
         conn.commit()
