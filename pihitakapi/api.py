@@ -77,7 +77,7 @@ class addpost(Resource):
             return {'error': str(e)}
 
 class getAllPostsFromUserID(Resource):
-    def post(self):
+    def get(self):
         try:
             args = parse.parse_args();
             userId = args['userid']
