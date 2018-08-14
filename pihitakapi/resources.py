@@ -114,16 +114,14 @@ def get_category():
 
     return {'StatusCode':'200','category':category_List}
 
-def get_post(id):
+def get_post(CustomCode):
 
-    __id = id
+    __cCode = CustomCode
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spGetSinglePost',(__id,))
+    cursor.callproc('spGetSinglePost',(__cCode,))
     data = cursor.fetchall()
-
     singlePost = []
-
     for post in data:
         i = {
             'postId' : post[0],
@@ -132,19 +130,17 @@ def get_post(id):
             'PostSrc' : post[4]
             }
         singlePost.append(i)
-
     return {'StatusCode':'200','Items':singlePost}
 
 
-def add_posts(uId, pTitle, postDesc,selectedFile,catId):
+def add_posts(uId, pTitle, postDesc,selectedFile,catId,slug,cid):
 
     # fileName = os.path.join(upload_url,selectFile)
     # return {'result':'selectFile'}
     # cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
-    
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId))
+    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId,slug,cid))
     data = cursor.fetchall()
     if len(data) is 0:
         conn.commit()

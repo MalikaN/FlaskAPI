@@ -22,8 +22,10 @@ parse.add_argument('userid',type=int,help='User Id created post')
 parse.add_argument('postTitle',type=str,help='Post Title')
 parse.add_argument('fileUrl', type=str, help='upload images')
 parse.add_argument('postId', type=int, help='Post ID')
-parse.add_argument('post', help='Post Category')
-parse.add_argument('catId',type=int,help='')
+parse.add_argument('post', help='Post Description')
+parse.add_argument('catId',type=int,help='Post Category')
+parse.add_argument('slug',type=str,help='Post Title Slug')
+parse.add_argument('customId',type=str,help='custom Post ID')
 
 
 class createUser(Resource):
@@ -56,10 +58,11 @@ class getAllPosts(Resource):
             return {'error': str(e)}
 
 class getPost(Resource):
-    def get(self,id):
+    def get(self):
         try:
-
-            return get_post(id)
+            args = parse.parse_args();
+            customId = args['customId']
+            return get_post(customId)
         
         except Exception as e :
             return {'error': str(e)}
@@ -68,13 +71,13 @@ class addpost(Resource):
     def post(self):
         try:
             args = parse.parse_args();
-            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'])
+            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'], args['slug'], args['customId'])
         
         except Exception as e:
             return {'error': str(e)}
 
 class getAllPostsFromUserID(Resource):
-    def post(self):
+    def get(self):
         try:
             args = parse.parse_args();
             userId = args['userid']
@@ -107,6 +110,6 @@ api.add_resource(createUser,'/signup')
 api.add_resource(addpost,'/add-post')
 api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPosts,'/')
-api.add_resource(getPost,'/post/<int:id>')
+api.add_resource(getPost,'/post')
 api.add_resource(getAllPostsFromUserID,'/my-post')
 api.add_resource(getPostCategory,'/get-post-category')
