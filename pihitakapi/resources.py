@@ -155,7 +155,6 @@ def get_all_posts_user_id(userid):
     __userID = userid
     cursor.callproc('spGetAllPostFromLoginUser',(__userID,))
     data = cursor.fetchall()
-
     allPosts = []
 
     for post in data:
@@ -163,7 +162,9 @@ def get_all_posts_user_id(userid):
             'postId' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
-            'PostSrc' : post[3]
+            'PostSrc' : post[4],
+            'Slug' : post[6],
+            'CustomCode' : post[7]
         }
 
         allPosts.append(i)
