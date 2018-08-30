@@ -1,9 +1,10 @@
 from flask import jsonify
 from flaskext.mysql import MySQL
-from werkzeug.security import generate_password_hash, check_password_hash
+# from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from pihitakapi.config import BaseConfig
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_raw_jwt,decode_token)
+import bcrypt
 # import cloudinary
 import os
 # from cloudinary.uploader import upload
@@ -26,8 +27,9 @@ def create_user(firstname,lastname,email,password):
     __firstName = firstname
     __lastName = lastname
     __userEmail = email
-    __password = generate_password_hash(password,method='sha256')
-    cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password,))
+    __password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    # __password = generate_password_hash(password,method='sha256')
+    cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password.decode('utf-8'),))
     data = cursor.fetchone()
 
     if (data[0]!=[]):
@@ -58,8 +60,10 @@ def authenticate_user(email,password):
     data = cursor.fetchone()
 
     if(len(data)>0):
-
-        if check_password_hash(str(data[4]), password):
+        passwd = str(data[4])
+        # return{'data' :str(data[4])}
+        # if check_password_hash(str(data[4]), password):
+        if bcrypt.checkpw(password.encode('utf-8'), passwd.encode('utf-8')):
             access_token = create_access_token(identity = format(data[0]))
             refresh_token = create_refresh_token(identity = format(data[0]))
             tokenValue = dict()
