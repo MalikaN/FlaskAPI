@@ -131,7 +131,8 @@ def get_post(CustomCode):
             'postId' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
-            'PostSrc' : post[4]
+            'PostSrc' : post[4],
+            'createdUser': post[8]
             }
         singlePost.append(i)
     return {'StatusCode':'200','Items':singlePost}
