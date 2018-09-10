@@ -1,6 +1,5 @@
 from flask import jsonify
 from flaskext.mysql import MySQL
-# from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from pihitakapi.config import BaseConfig
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_raw_jwt,decode_token)
@@ -28,7 +27,6 @@ def create_user(firstname,lastname,email,password):
     __lastName = lastname
     __userEmail = email
     __password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    # __password = generate_password_hash(password,method='sha256')
     cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password.decode('utf-8'),))
     data = cursor.fetchone()
 
@@ -61,8 +59,6 @@ def authenticate_user(email,password):
 
     if(len(data)>0):
         passwd = str(data[4])
-        # return{'data' :str(data[4])}
-        # if check_password_hash(str(data[4]), password):
         if bcrypt.checkpw(password.encode('utf-8'), passwd.encode('utf-8')):
             access_token = create_access_token(identity = format(data[0]))
             refresh_token = create_refresh_token(identity = format(data[0]))
@@ -145,8 +141,9 @@ def add_posts(uId, pTitle, postDesc,selectedFile,catId,slug,cid):
     # cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId,slug,cid))
+    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId,slug,cid,))   
     data = cursor.fetchall()
+    
     if len(data) is 0:
         conn.commit()
         return {'StatusCode':'201','Message': 'Post created Successfully'}
@@ -188,7 +185,6 @@ def edit_post(postid, title, post, file):
         return {'StatusCode':'201','Message': 'Post created Successfully'}
     else:
         return {'StatusCode':'100','Message': 'Error Occured'}
-
 
 def token_refresh():
     current_user = get_jwt_identity()
