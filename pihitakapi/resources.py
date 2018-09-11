@@ -1,9 +1,9 @@
 from flask import jsonify
 from flaskext.mysql import MySQL
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from pihitakapi.config import BaseConfig
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_raw_jwt,decode_token)
+import bcrypt
 # import cloudinary
 import os
 # from cloudinary.uploader import upload
@@ -26,8 +26,8 @@ def create_user(firstname,lastname,email,password):
     __firstName = firstname
     __lastName = lastname
     __userEmail = email
-    __password = generate_password_hash(password,method='sha256')
-    cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password,))
+    __password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password.decode('utf-8'),))
     data = cursor.fetchone()
 
     if (data[0]!=[]):
@@ -58,8 +58,8 @@ def authenticate_user(email,password):
     data = cursor.fetchone()
 
     if(len(data)>0):
-
-        if check_password_hash(str(data[4]), password):
+        passwd = str(data[4])
+        if bcrypt.checkpw(password.encode('utf-8'), passwd.encode('utf-8')):
             access_token = create_access_token(identity = format(data[0]))
             refresh_token = create_refresh_token(identity = format(data[0]))
             tokenValue = dict()
@@ -90,7 +90,9 @@ def get_all_posts():
             'PostDesc' : post[2],
             'PostSrc' : post[4],
             'CatId': post[5],
-            'Slug': post[6]
+            'Slug': post[6],
+            'CustomCode': post[7],
+            'Category': post[9]
             }
         post_List.append(i)
 
@@ -112,38 +114,36 @@ def get_category():
 
     return {'StatusCode':'200','category':category_List}
 
-def get_post(id):
+def get_post(CustomCode):
 
-    __id = id
+    __cCode = CustomCode
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spGetSinglePost',(__id,))
+    cursor.callproc('spGetSinglePost',(__cCode,))
     data = cursor.fetchall()
-
     singlePost = []
-
     for post in data:
         i = {
             'postId' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
-            'PostSrc' : post[4]
+            'PostSrc' : post[4],
+            'createdUser': post[8]
             }
         singlePost.append(i)
-
     return {'StatusCode':'200','Items':singlePost}
 
 
-def add_posts(uId, pTitle, postDesc,selectedFile,catId):
+def add_posts(uId, pTitle, postDesc,selectedFile,catId,slug,cid):
 
     # fileName = os.path.join(upload_url,selectFile)
     # return {'result':'selectFile'}
     # cloudinary.uploader.unsigned_upload(fileName,'iv3w5ot5',cloud_name = 'myprojectx')
-    
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId))
+    cursor.callproc('spAddPost',(uId, pTitle, postDesc,selectedFile,catId,slug,cid,))   
     data = cursor.fetchall()
+    
     if len(data) is 0:
         conn.commit()
         return {'StatusCode':'201','Message': 'Post created Successfully'}
@@ -157,7 +157,6 @@ def get_all_posts_user_id(userid):
     __userID = userid
     cursor.callproc('spGetAllPostFromLoginUser',(__userID,))
     data = cursor.fetchall()
-
     allPosts = []
 
     for post in data:
@@ -165,7 +164,9 @@ def get_all_posts_user_id(userid):
             'postId' : post[0],
             'postTitle' : post[1],
             'PostDesc' : post[2],
-            'PostSrc' : post[3]
+            'PostSrc' : post[4],
+            'Slug' : post[6],
+            'CustomCode' : post[7]
         }
 
         allPosts.append(i)
@@ -184,7 +185,6 @@ def edit_post(postid, title, post, file):
         return {'StatusCode':'201','Message': 'Post created Successfully'}
     else:
         return {'StatusCode':'100','Message': 'Error Occured'}
-
 
 def token_refresh():
     current_user = get_jwt_identity()
