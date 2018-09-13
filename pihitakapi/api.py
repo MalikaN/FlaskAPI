@@ -26,6 +26,9 @@ parse.add_argument('post', help='Post Description')
 parse.add_argument('catId',type=int,help='Post Category')
 parse.add_argument('slug',type=str,help='Post Title Slug')
 parse.add_argument('customId',type=str,help='custom Post ID')
+parse.add_argument('accno',type=str,help='Account Number')
+parse.add_argument('tele',type=str,help='Telephone Number')
+parse.add_argument('city',type=str,help='City')
 
 
 class createUser(Resource):
@@ -71,7 +74,7 @@ class addpost(Resource):
     def post(self):
         try:
             args = parse.parse_args();
-            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'], args['slug'], args['customId'])
+            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'], args['slug'], args['customId'],args['accno'], args['tele'], args['city'])
         
         except Exception as e:
             return {'error': str(e)}
