@@ -82,7 +82,6 @@ def get_all_posts():
     cursor.callproc('spGetPosts')
     data = cursor.fetchall()
     post_List = []
-    
     for post in data:
         i = {
             'id' : post[0],
@@ -92,10 +91,10 @@ def get_all_posts():
             'CatId': post[5],
             'Slug': post[6],
             'CustomCode': post[7],
-            'Category': post[9]
+            'Category': post[11],
+            'CreatedBy':post[12]
             }
         post_List.append(i)
-
     return {'StatusCode':'200','Items':post_List}
 
 def get_category():
