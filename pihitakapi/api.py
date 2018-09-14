@@ -92,7 +92,7 @@ class editpost(Resource):
     def post(self):
         try:
             args= parse.parse_args();
-            return edit_post(args['postId'],args['postTitle'],args['post'],args['fileUrl'])
+            return edit_post(args['postId'],args['postTitle'],args['post'],args['fileUrl'],args['accno'],args['tele'],args['city'])
         except Exception as e:
             return {'error': str(e)}
 
