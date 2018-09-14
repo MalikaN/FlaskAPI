@@ -177,11 +177,11 @@ def get_all_posts_user_id(userid):
     
     return{'StatusCode':'200','Items':allPosts}
 
-def edit_post(postid, title, post, file):
+def edit_post(postid, title, post, file, accno, mobile, city):
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spEditPost',(postid, title, post, file))
+    cursor.callproc('spEditPost',(postid, title, post, file, accno, mobile, city))
     data = cursor.fetchall()
 
     if len(data) is 0:
