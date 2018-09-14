@@ -129,7 +129,10 @@ def get_post(CustomCode):
             'postTitle' : post[1],
             'PostDesc' : post[2],
             'PostSrc' : post[4],
-            'createdUser': post[8]
+            'AccountNo': post[8],
+            'mobile': post[9],
+            'city': post[10],
+            'createdUser': post[11]
             }
         singlePost.append(i)
     return {'StatusCode':'200','Items':singlePost}
