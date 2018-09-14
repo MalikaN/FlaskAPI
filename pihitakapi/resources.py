@@ -82,7 +82,6 @@ def get_all_posts():
     cursor.callproc('spGetPosts')
     data = cursor.fetchall()
     post_List = []
-    
     for post in data:
         i = {
             'id' : post[0],
@@ -92,8 +91,8 @@ def get_all_posts():
             'CatId': post[5],
             'Slug': post[6],
             'CustomCode': post[7],
-            'Category': post[11],
-            'CreatedBy':post[12]
+            'Category': post[8],
+            'CreatedBy':post[9]
             }
         post_List.append(i)
 
@@ -164,7 +163,6 @@ def get_all_posts_user_id(userid):
     cursor.callproc('spGetAllPostFromLoginUser',(__userID,))
     data = cursor.fetchall()
     allPosts = []
-
     for post in data:
         i={
             'postId' : post[0],
