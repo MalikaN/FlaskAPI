@@ -137,7 +137,6 @@ def get_post(CustomCode):
             'createdUser': post[9]
             }
         singlePost.append(i)
-        return{'da':singlePost}
     return {'StatusCode':'200','Items':singlePost}
 
 
