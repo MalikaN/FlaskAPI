@@ -133,7 +133,8 @@ def get_post(CustomCode):
             'city': post[6],
             'createdDate': post[7],
             'UpdatedDate':post[8],
-            'createdUser': post[9]
+            'createdUser': post[9],
+            'Slug': post[10]
             }
         singlePost.append(i)
     return {'StatusCode':'200','Items':singlePost}
@@ -177,11 +178,11 @@ def get_all_posts_user_id(userid):
     
     return{'StatusCode':'200','Items':allPosts}
 
-def edit_post(postid, title, post, file, accno, mobile, city):
+def edit_post(postid, title, post, file, accno, mobile, city, slug):
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spEditPost',(postid, title, post, file, accno, mobile, city))
+    cursor.callproc('spEditPost',(postid, title, post, file, accno, mobile, city, slug,))
     data = cursor.fetchall()
 
     if len(data) is 0:
