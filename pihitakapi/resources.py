@@ -29,7 +29,6 @@ def create_user(firstname,lastname,email,password):
     __password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password.decode('utf-8'),))
     data = cursor.fetchone()
-
     if (data[0]!=[]):
         conn.commit()
         # JWT access
@@ -42,6 +41,7 @@ def create_user(firstname,lastname,email,password):
         tokenValue['userId'] = format(data[0])
         tokenValue['username'] = (firstname+' '+lastname)
         tokenValue['status'] = 422
+        tokenValue['roleId'] = format(data[1])
 
         return tokenValue
     else:
@@ -56,7 +56,6 @@ def authenticate_user(email,password):
 
     cursor.callproc('spAuthenticateUser',(__email,))
     data = cursor.fetchone()
-
     if(len(data)>0):
         passwd = str(data[4])
         if bcrypt.checkpw(password.encode('utf-8'), passwd.encode('utf-8')):
@@ -69,6 +68,7 @@ def authenticate_user(email,password):
             tokenValue['userId'] = format(data[0])
             tokenValue['username'] = format(data[1])+' '+format(data[2])
             tokenValue['status'] = 422
+            tokenValue['roleId'] = format(data[5])
             
             return tokenValue
 
