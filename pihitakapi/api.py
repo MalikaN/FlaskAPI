@@ -33,7 +33,7 @@ parse.add_argument('published',type=str,help='post status')
 
 
 class createUser(Resource):
-    @jwt_required
+    # @jwt_required
     def post(self):
         try:           
             args = parse.parse_args();
@@ -43,7 +43,7 @@ class createUser(Resource):
             return {'error':str(e)}
 
 class authenticateUser(Resource):
-    @jwt_required
+    # @jwt_required
     def post(self):
         try:
             
@@ -74,7 +74,7 @@ class getPost(Resource):
             return {'error': str(e)}
 
 class addpost(Resource):
-    @jwt_required
+    # @jwt_required
     def post(self):
         try:
             args = parse.parse_args();
@@ -84,7 +84,7 @@ class addpost(Resource):
             return {'error': str(e)}
 
 class getAllPostsFromUserID(Resource):
-    @jwt_required
+    # @jwt_required
     def get(self):
         try:
             args = parse.parse_args();
@@ -94,7 +94,7 @@ class getAllPostsFromUserID(Resource):
             return {'error': str(e)}
 
 class editpost(Resource):
-    @jwt_required
+    # @jwt_required
     def post(self):
         try:
             args= parse.parse_args();
