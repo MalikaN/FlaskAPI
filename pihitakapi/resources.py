@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pihitakapi.config import BaseConfig
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_raw_jwt,decode_token)
 import bcrypt
+from datetime import datetime,timedelta
 # import cloudinary
 import os
 # from cloudinary.uploader import upload
@@ -29,11 +30,13 @@ def create_user(firstname,lastname,email,password):
     __password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     cursor.callproc('spCreateUser',(__firstName,__lastName,__userEmail,__password.decode('utf-8'),))
     data = cursor.fetchone()
-    if (data[0]!=[]):
+
+    if (data[0] != "Username Exists !!"):
         conn.commit()
         # JWT access
-        access_token = create_access_token(identity = email)
-        refresh_token = create_refresh_token(identity = email)
+        expires = timedelta(minutes=30)
+        access_token = create_access_token(identity = email, expires_delta=expires)
+        refresh_token = create_refresh_token(identity = email, expires_delta=expires)
         tokenValue = dict()
         tokenValue['message'] = ('logged in as '+email)
         tokenValue['access_token'] = access_token
@@ -57,6 +60,7 @@ def authenticate_user(email,password):
     cursor.callproc('spAuthenticateUser',(__email,))
     data = cursor.fetchone()
     if(len(data)>0):
+        
         passwd = str(data[4])
         if bcrypt.checkpw(password.encode('utf-8'), passwd.encode('utf-8')):
             access_token = create_access_token(identity = format(data[0]))
@@ -92,7 +96,8 @@ def get_all_posts():
             'Slug': post[6],
             'CustomCode': post[7],
             'Category': post[8],
-            'CreatedBy':post[9]
+            'CreatedBy': post[9],
+            'Published': post[10]
             }
         post_List.append(i)
 
@@ -104,7 +109,6 @@ def get_category():
     cursor.callproc('spGetPostCategory')
     data = cursor.fetchall()
     category_List = []
-
     for cat in data:
         i = {
             'catId' : cat[0],
@@ -134,7 +138,8 @@ def get_post(CustomCode):
             'createdDate': post[7],
             'UpdatedDate':post[8],
             'createdUser': post[9],
-            'Slug': post[10]
+            'Slug': post[10],
+            'Published': post[11]
             }
         singlePost.append(i)
     return {'StatusCode':'200','Items':singlePost}
@@ -171,18 +176,19 @@ def get_all_posts_user_id(userid):
             'PostDesc' : post[2],
             'PostSrc' : post[4],
             'Slug' : post[6],
-            'CustomCode' : post[7]
+            'CustomCode' : post[7],
+            'Published': post[13]
         }
 
         allPosts.append(i)
     
     return{'StatusCode':'200','Items':allPosts}
 
-def edit_post(postid, title, post, file, accno, mobile, city, slug):
+def edit_post(postid, title, post, file, accno, mobile, city, slug, published):
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('spEditPost',(postid, title, post, file, accno, mobile, city, slug,))
+    cursor.callproc('spEditPost',(postid, title, post, file, accno, mobile, city, slug, published,))
     data = cursor.fetchall()
 
     if len(data) is 0:
@@ -190,8 +196,3 @@ def edit_post(postid, title, post, file, accno, mobile, city, slug):
         return {'StatusCode':'201','Message': 'Post created Successfully'}
     else:
         return {'StatusCode':'100','Message': 'Error Occured'}
-
-def token_refresh():
-    current_user = get_jwt_identity()
-    access_token = create_access_token(identity = current_user)
-    return {'access_token': access_token}  
