@@ -1,8 +1,8 @@
 from flask import Blueprint,Flask,request
 from flask_restful import Resource,Api,reqparse
-from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, token_refresh, get_all_posts_user_id, edit_post, get_category
+from pihitakapi.resources import create_user, authenticate_user, get_all_posts, add_posts, get_post, get_all_posts_user_id, edit_post, get_category
 from flask_cors import CORS
-from flask_jwt_extended import jwt_required, jwt_refresh_token_required
+from flask_jwt_extended import jwt_required, jwt_refresh_token_required, jwt_required
 from werkzeug.datastructures import FileStorage 
 
 api_bp = Blueprint('api', __name__)
@@ -26,9 +26,14 @@ parse.add_argument('post', help='Post Description')
 parse.add_argument('catId',type=int,help='Post Category')
 parse.add_argument('slug',type=str,help='Post Title Slug')
 parse.add_argument('customId',type=str,help='custom Post ID')
+parse.add_argument('accno',type=str,help='Account Number')
+parse.add_argument('tele',type=str,help='Telephone Number')
+parse.add_argument('city',type=str,help='City')
+parse.add_argument('published',type=str,help='post status')
 
 
 class createUser(Resource):
+    @jwt_required
     def post(self):
         try:           
             args = parse.parse_args();
@@ -38,6 +43,7 @@ class createUser(Resource):
             return {'error':str(e)}
 
 class authenticateUser(Resource):
+    @jwt_required
     def post(self):
         try:
             
@@ -68,15 +74,17 @@ class getPost(Resource):
             return {'error': str(e)}
 
 class addpost(Resource):
+    @jwt_required
     def post(self):
         try:
             args = parse.parse_args();
-            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'], args['slug'], args['customId'])
+            return add_posts(args['userid'],args['postTitle'],args['post'],args['fileUrl'],args['catId'], args['slug'], args['customId'],args['accno'], args['tele'], args['city'])
         
         except Exception as e:
             return {'error': str(e)}
 
 class getAllPostsFromUserID(Resource):
+    @jwt_required
     def get(self):
         try:
             args = parse.parse_args();
@@ -86,10 +94,11 @@ class getAllPostsFromUserID(Resource):
             return {'error': str(e)}
 
 class editpost(Resource):
+    @jwt_required
     def post(self):
         try:
             args= parse.parse_args();
-            return edit_post(args['postId'],args['postTitle'],args['post'],args['fileUrl'])
+            return edit_post(args['postId'],args['postTitle'],args['post'],args['fileUrl'],args['accno'],args['tele'],args['city'],args['slug'],args['published'])
         except Exception as e:
             return {'error': str(e)}
 
@@ -101,15 +110,14 @@ class getPostCategory(Resource):
             return {'error': str(e)}
 
 class TokenRefresh(Resource):
-    @jwt_refresh_token_required
     def get(self):
         return token_refresh()
               
 api.add_resource(authenticateUser,'/login')
 api.add_resource(createUser,'/signup')
-api.add_resource(addpost,'/add-post')
-api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPosts,'/')
 api.add_resource(getPost,'/post')
+api.add_resource(addpost,'/add-post')
+api.add_resource(editpost,'/edit-post')
 api.add_resource(getAllPostsFromUserID,'/my-post')
 api.add_resource(getPostCategory,'/get-post-category')
